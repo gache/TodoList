@@ -57,7 +57,7 @@ function newTodo() {
         var text = document.getElementById("todo");
         if (text.value.length > 0) {
             var tableau = getLocalStorage();
-            var id = tableau.length;
+            var id = Math.random().toString(36).substr(2, 9);
             var todo = new Todo(id, text.value, false);
             text.value = "";
             var liElement = createTodoHtml(todo);
@@ -65,6 +65,7 @@ function newTodo() {
             tableau.push(todo);
             setLocalStorage(tableau);
             addListenerOneLi(liElement);
+            addListenerButton(liElement);
             // existe déla dans setLocalStorage()
             // implementCountTodo();
         }
@@ -80,8 +81,12 @@ function startAllLiAddEventListener() {
 function addListenerButton(el) {
     var id = el.id.split("todo_")[1];
     var span = el.querySelector("span.delete");
-    span.addEventListener("click", function () {
+    span.addEventListener("click", function (e) {
         console.log("delete" + id);
+        e.stopImmediatePropagation();
+        el.remove();
+        var todos = getLocalStorage().filter(function (todo) { return todo.id != id; });
+        setLocalStorage(todos);
     });
 }
 function addListenerOneLi(el) {
@@ -92,7 +97,7 @@ function addListenerOneLi(el) {
             var id = el.id.split("todo_")[1];
             var todos = getLocalStorage()
                 .map(function (todo) {
-                if (todo.id == parseInt(id)) {
+                if (todo.id == id) {
                     todo.completed = !todo.completed;
                 }
                 return todo;

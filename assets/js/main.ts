@@ -67,7 +67,7 @@ function newTodo () {
     const text = document.getElementById( "todo" ) as HTMLInputElement;
     if ( text.value.length > 0 ) {
       let tableau = getLocalStorage()
-      let id = tableau.length;
+      let id: string = Math.random().toString( 36 ).substr( 2, 9 );
       const todo = new Todo( id, text.value, false );
       text.value = "";
       const liElement = createTodoHtml( todo );
@@ -75,6 +75,7 @@ function newTodo () {
       tableau.push( todo );
       setLocalStorage( tableau );
       addListenerOneLi( liElement );
+      addListenerButton( liElement );
       // existe déla dans setLocalStorage()
       // implementCountTodo();
     }
@@ -96,8 +97,12 @@ function startAllLiAddEventListener () {
 function addListenerButton ( el: Element ) {
   let id = el.id.split( "todo_" )[1];
   const span = el.querySelector( "span.delete" ) as HTMLSpanElement;
-  span.addEventListener( "click", () => {
+  span.addEventListener( "click", ( e ) => {
     console.log( "delete" + id );
+    e.stopImmediatePropagation();
+    el.remove();
+    const todos: Array<Todo> = getLocalStorage().filter( todo => todo.id != id );
+    setLocalStorage( todos );
 
   } )
 }
@@ -110,7 +115,7 @@ function addListenerOneLi ( el: Element ) {
       let id = el.id.split( "todo_" )[1];
       const todos: Array<Todo> = getLocalStorage()
         .map( todo => {
-          if ( todo.id == parseInt( id ) ) {
+          if ( todo.id == id ) {
             todo.completed = !todo.completed;
           }
           return todo;
